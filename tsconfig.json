@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2022",                                  /* Array.prototype.at() method is part of ES2022 */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
+    "outDir": "dist",
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
