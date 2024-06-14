@@ -1,6 +1,6 @@
 export class Parser {
     static #patterns = {
-        id: "^(\\d+)\\n",
+        id: "^(\\d+)\\r?\\n",
         maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
         secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
         arrow: " *--> *",
@@ -10,7 +10,12 @@ export class Parser {
         // Build regex on initialization (Just to make each part of the pattern clearer)
         const { id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } = Parser.#patterns;
         const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
-        const fullPattern = "\\n*" + id + singleTimestamp + arrow + singleTimestamp + "\\n*"; // Trim line breaks by not capturing them
+        const fullPattern = "(?:\\r?\\n)*" +
+            id +
+            singleTimestamp +
+            arrow +
+            singleTimestamp +
+            "(?:\\r?\\n)*"; // Trim line breaks by not capturing them
         this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id
     }
     timestampToMilliseconds(s) {

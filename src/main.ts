@@ -9,7 +9,7 @@ type Cues = Array<Cue>;
 
 export class Parser {
   static #patterns = {
-    id: "^(\\d+)\\n", // Needs multiline flag
+    id: "^(\\d+)\\r?\\n", // Needs multiline flag
     maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
     secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
     arrow: " *--> *",
@@ -24,7 +24,12 @@ export class Parser {
       Parser.#patterns;
     const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
     const fullPattern =
-      "\\n*" + id + singleTimestamp + arrow + singleTimestamp + "\\n*"; // Trim line breaks by not capturing them
+      "(?:\\r?\\n)*" +
+      id +
+      singleTimestamp +
+      arrow +
+      singleTimestamp +
+      "(?:\\r?\\n)*"; // Trim line breaks by not capturing them
 
     this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id
   }

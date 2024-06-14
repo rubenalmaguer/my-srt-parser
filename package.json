@@ -9,6 +9,13 @@
     "build": "tsc",
     "test": "vitest"
   },
+  "exports": {
+    ".": {
+      "require": "./dist/main.js",
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
