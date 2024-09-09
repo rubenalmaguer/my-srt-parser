@@ -1,7 +1,11 @@
 import { expect, test } from "vitest";
 
-import { Parser } from "../src/main.ts";
 import samples from "./samples.js";
+import Parser from "../src/main.ts";
+import {
+  millisecondsToTimestamp,
+  timestampToMilliseconds,
+} from "../src/main.ts";
 
 test("TRUNCATED - from SRT to JSON", () => {
   let parser = new Parser();
@@ -23,4 +27,19 @@ test("WEBVTT", () => {
       parser.srtToJSON(samples.webvttNotes[0]);
     }
   ).toThrowError("Invalid");
+});
+
+test("TS to MS", () => {
+  expect(timestampToMilliseconds("00:00:00.000")).toEqual(0);
+  expect(timestampToMilliseconds("00:00:00,000")).toEqual(0);
+  expect(timestampToMilliseconds("00:00:00.001")).toEqual(1);
+});
+
+test("MS to TS", () => {
+  expect(millisecondsToTimestamp(12345)).toEqual("00:00:12,345");
+});
+
+test("MS to TS - Wrong input", () => {
+  expect(() => millisecondsToTimestamp()).toThrow();
+  expect(() => millisecondsToTimestamp("This is a string")).toThrow();
 });

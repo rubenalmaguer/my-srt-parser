@@ -7,10 +7,13 @@ type Cue = {
 
 type Cues = Array<Cue>;
 
-export class Parser {
+export default class Parser {
   static #patterns = {
-    id: "^(\\d+)\\r?\\n", // Needs multiline flag
-    maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
+    // Trim line breaks by not capturing them
+    lineBreak: "(?:\\r?\\n)+",
+    maybeLineBreak: "(?:\\r?\\n)*",
+    id: "^(\\d+)",
+    maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}", // Not captured individually, but with s, ms as a unit
     secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
     arrow: " *--> *",
   };
@@ -20,18 +23,20 @@ export class Parser {
   constructor() {
     // Build regex on initialization (Just to make each part of the pattern clearer)
 
-    const { id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } =
+    const { lineBreak, maybeLineBreak, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } =
       Parser.#patterns;
+
     const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
     const fullPattern =
-      "(?:\\r?\\n)*" +
+      maybeLineBreak +
       id +
+      lineBreak +
       singleTimestamp +
       arrow +
       singleTimestamp +
-      "(?:\\r?\\n)*"; // Trim line breaks by not capturing them
+      lineBreak
 
-    this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id
+    this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id. Needs multiline flag.
   }
 
   timestampToMilliseconds(s: string) {
@@ -55,6 +60,10 @@ export class Parser {
   }
 
   millisecondsToTimestamp(input: number) {
+    if (isNaN(input)) {
+      throw `Expected a number. Received: ${typeof input}`;
+    }
+
     const MS_PER_HR = 3600000;
     const MS_PER_MIN = 60000;
     const MS_PER_SECOND = 1000;
@@ -122,3 +131,8 @@ export class Parser {
     }, "");
   }
 }
+
+
+export const {
+  millisecondsToTimestamp, timestampToMilliseconds
+} = Parser.prototype;

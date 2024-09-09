@@ -1,6 +1,9 @@
-export class Parser {
+export default class Parser {
     static #patterns = {
-        id: "^(\\d+)\\r?\\n",
+        // Trim line breaks by not capturing them
+        lineBreak: "(?:\\r?\\n)+",
+        maybeLineBreak: "(?:\\r?\\n)*",
+        id: "^(\\d+)",
         maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
         secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
         arrow: " *--> *",
@@ -8,15 +11,16 @@ export class Parser {
     #timecodeRegex;
     constructor() {
         // Build regex on initialization (Just to make each part of the pattern clearer)
-        const { id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } = Parser.#patterns;
+        const { lineBreak, maybeLineBreak, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } = Parser.#patterns;
         const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
-        const fullPattern = "(?:\\r?\\n)*" +
+        const fullPattern = maybeLineBreak +
             id +
+            lineBreak +
             singleTimestamp +
             arrow +
             singleTimestamp +
-            "(?:\\r?\\n)*"; // Trim line breaks by not capturing them
-        this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id
+            lineBreak;
+        this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id. Needs multiline flag.
     }
     timestampToMilliseconds(s) {
         let result = 0;
@@ -32,6 +36,9 @@ export class Parser {
         return result;
     }
     millisecondsToTimestamp(input) {
+        if (isNaN(input)) {
+            throw `Expected a number. Received: ${typeof input}`;
+        }
         const MS_PER_HR = 3600000;
         const MS_PER_MIN = 60000;
         const MS_PER_SECOND = 1000;
@@ -86,3 +93,4 @@ export class Parser {
         }, "");
     }
 }
+export const { millisecondsToTimestamp, timestampToMilliseconds } = Parser.prototype;
