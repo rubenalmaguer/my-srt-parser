@@ -73,6 +73,52 @@ Sino tener el producto en condiciones.
     ],
   ],
 
+  bom: [
+    `\ufeff
+1
+00:00:04,625 --> 00:00:06,125
+Hola, ENGENE.
+
+2
+00:00:06,126 --> 00:00:07,250
+Soy SUNGHOON
+
+3
+00:00:07,251 --> 00:00:09,500
+El objeto preciado de mi infancia
+
+4
+00:00:09,501 --> 00:00:11,750
+son estos bloques de construcción.
+    `,
+    [
+      {
+        endMS: 6125,
+        id: "1",
+        startMS: 4625,
+        text: "Hola, ENGENE.",
+      },
+      {
+        endMS: 7250,
+        id: "2",
+        startMS: 6126,
+        text: "Soy SUNGHOON",
+      },
+      {
+        endMS: 9500,
+        id: "3",
+        startMS: 7251,
+        text: "El objeto preciado de mi infancia",
+      },
+      {
+        endMS: 11750,
+        id: "4",
+        startMS: 9501,
+        text: "son estos bloques de construcción.",
+      },
+    ],
+  ],
+
   webvttRegion: `WEBVTT
 Region: id=fred
 

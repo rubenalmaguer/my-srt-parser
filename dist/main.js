@@ -3,7 +3,7 @@ export default class Parser {
         // Trim line breaks by not capturing them
         lineBreak: "(?:\\r?\\n)+",
         maybeLineBreak: "(?:\\r?\\n)*",
-        id: "^(\\d+)",
+        id: "(\\d+)",
         maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
         secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
         arrow: " *--> *",
@@ -55,15 +55,19 @@ export default class Parser {
         return `${hh}:${mm}:${ss},${ms}`;
     }
     srtToJSON(s) {
+        // Remove BOM and whitespace.
+        s = s.replace(/^\uFEFF|\uFFFE/g, '');
+        s = s.trim();
         // Splat items strings intertwined with the three captured groups (id, start, end)
         const items = s.split(this.#timecodeRegex);
         // Remove first item, which should be an empty tring for valid SRTs.
-        const firstComp = items.shift();
+        let firstComp = items.shift();
+        firstComp = firstComp?.trim();
         if (firstComp && firstComp.match("VTT")) {
             throw new Error("Invalid file format. Try removing VTT header.");
         }
         if (firstComp == undefined || firstComp !== "") {
-            throw new Error("Invalid file format.");
+            throw new Error(`Invalid file format. First comp: ${firstComp}`);
         }
         // Remove any trailing line breaks in last item.
         items[items.length - 1] = items[items.length - 1].trimEnd();

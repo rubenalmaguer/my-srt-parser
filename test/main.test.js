@@ -12,6 +12,11 @@ test("TRUNCATED - from SRT to JSON", () => {
   expect(parser.srtToJSON(samples.truncated[0])).toEqual(samples.truncated[1]);
 });
 
+test("With BOM - from SRT to JSON", () => {
+  let parser = new Parser();
+  expect(parser.srtToJSON(samples.bom[0])).toEqual(samples.bom[1]);
+});
+
 test("BASIC - from JSON to SRT", () => {
   let parser = new Parser();
   expect(parser.JSONtoSRT(samples.basic[1]).trim()).toEqual(
@@ -24,7 +29,7 @@ test("WEBVTT", () => {
   expect(
     // Must wrap in function to catch error
     () => {
-      parser.srtToJSON(samples.webvttNotes[0]);
+      parser.srtToJSON(samples.webvttNotes);
     }
   ).toThrowError("Invalid");
 });
