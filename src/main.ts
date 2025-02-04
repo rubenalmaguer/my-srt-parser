@@ -10,8 +10,8 @@ type Cues = Array<Cue>;
 export default class Parser {
   static #patterns = {
     // Trim line breaks by not capturing them
-    lineBreak: "(?:\\r?\\n)+",
-    maybeLineBreak: "(?:\\r?\\n)*",
+    lineBreak: "(?:\\s*\\r?\\n\\s*)+",
+    maybeLineBreak: "(?:\\s*\\r?\\n\\s*)*",
     id: "(\\d+)",
     maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}", // Not captured individually, but with s, ms as a unit
     secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
