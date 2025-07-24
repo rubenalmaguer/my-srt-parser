@@ -48,3 +48,15 @@ test("MS to TS - Wrong input", () => {
   expect(() => millisecondsToTimestamp()).toThrow();
   expect(() => millisecondsToTimestamp("This is a string")).toThrow();
 });
+
+test("Trim spaces around every line", () => {
+  let parser = new Parser({ trimSpaces: true });
+  expect(parser.srtToJSON(samples.trimEveryLine[0])).toEqual(
+    samples.trimEveryLine[1]
+  );
+});
+
+test("Do NOT trim spaces", () => {
+  let parser = new Parser({ trimSpaces: false });
+  expect(parser.srtToJSON(samples.doNotTrim[0])).toEqual(samples.doNotTrim[1]);
+});

@@ -200,4 +200,76 @@ Vertical writing mode (left-to-right)
 Vertical writing mode (right-to-left)
 
 `,
+
+  trimEveryLine: [
+    `
+14
+00:00:49,242 --> 00:00:50,717
+     ¿Es buena la solución que dio HYBE?
+
+15
+00:01:50,817 --> 00:01:53,628
+     Hay fans que dice que no es cuestión    
+     que devuelvan el dinero.     
+
+16
+02:00:53,695 --> 02:00:55,753
+Sino tener el producto en condiciones. `,
+    [
+      {
+        id: "14",
+        startMS: 49242,
+        endMS: 50717,
+        text: "¿Es buena la solución que dio HYBE?",
+      },
+      {
+        id: "15",
+        startMS: 110817,
+        endMS: 113628,
+        text: "Hay fans que dice que no es cuestión\nque devuelvan el dinero.",
+      },
+      {
+        id: "16",
+        startMS: 7253695,
+        endMS: 7255753,
+        text: `Sino tener el producto en condiciones.`,
+      },
+    ],
+  ],
+
+  doNotTrim: [
+    `
+14
+00:00:49,242 --> 00:00:50,717
+     ¿Es buena la solución que dio HYBE?
+
+15
+00:01:50,817 --> 00:01:53,628
+     Hay fans que dice que no es cuestión    
+     que devuelvan el dinero.     
+
+16
+02:00:53,695 --> 02:00:55,753
+Sino tener el producto en condiciones. `,
+    [
+      {
+        id: "14",
+        startMS: 49242,
+        endMS: 50717,
+        text: "     ¿Es buena la solución que dio HYBE?",
+      },
+      {
+        id: "15",
+        startMS: 110817,
+        endMS: 113628,
+        text: "     Hay fans que dice que no es cuestión    \n     que devuelvan el dinero.     ",
+      },
+      {
+        id: "16",
+        startMS: 7253695,
+        endMS: 7255753,
+        text: `Sino tener el producto en condiciones. `,
+      },
+    ],
+  ],
 };

@@ -1,25 +1,38 @@
 export default class Parser {
+    #trimSpaces = true;
     static #patterns = {
         // Trim line breaks by not capturing them
-        lineBreak: "(?:\\s*\\r?\\n\\s*)+",
-        maybeLineBreak: "(?:\\s*\\r?\\n\\s*)*",
+        lineBreaks: "(?:\\r?\\n)+",
+        lineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)+",
+        maybeLineBreaks: "(?:\\r?\\n)*",
+        maybeLineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)*",
         id: "(\\d+)",
         maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
         secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
         arrow: " *--> *",
     };
     #timecodeRegex;
-    constructor() {
+    constructor(options) {
+        this.#trimSpaces = options?.trimSpaces ?? true;
         // Build regex on initialization (Just to make each part of the pattern clearer)
-        const { lineBreak, maybeLineBreak, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow } = Parser.#patterns;
+        const { lineBreaks, lineBreaksAndSpaces, maybeLineBreaks, maybeLineBreaksAndSpaces, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow, } = Parser.#patterns;
         const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
-        const fullPattern = maybeLineBreak +
-            id +
-            lineBreak +
-            singleTimestamp +
-            arrow +
-            singleTimestamp +
-            lineBreak;
+        const fullPattern = this.#trimSpaces
+            ? maybeLineBreaksAndSpaces +
+                id +
+                lineBreaksAndSpaces +
+                singleTimestamp +
+                arrow +
+                singleTimestamp +
+                lineBreaksAndSpaces
+            : // Don't trim
+                maybeLineBreaks +
+                    id +
+                    lineBreaks +
+                    singleTimestamp +
+                    arrow +
+                    singleTimestamp +
+                    lineBreaks;
         this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id. Needs multiline flag.
     }
     timestampToMilliseconds(s) {
@@ -56,8 +69,9 @@ export default class Parser {
     }
     srtToJSON(s) {
         // Remove BOM and whitespace.
-        s = s.replace(/^\uFEFF|\uFFFE/g, '');
-        s = s.trim();
+        s = s.replace(/^\uFEFF|\uFFFE/g, "");
+        if (this.#trimSpaces)
+            s = s.trim();
         // Splat items strings intertwined with the three captured groups (id, start, end)
         const items = s.split(this.#timecodeRegex);
         // Remove first item, which should be an empty tring for valid SRTs.
@@ -70,7 +84,13 @@ export default class Parser {
             throw new Error(`Invalid file format. First comp: ${firstComp}`);
         }
         // Remove any trailing line breaks in last item.
-        items[items.length - 1] = items[items.length - 1].trimEnd();
+        if (this.#trimSpaces) {
+            items[items.length - 1] = items[items.length - 1].trimEnd();
+        }
+        else {
+            // Even the no-trim version needs last linebreak removed
+            items[items.length - 1] = items[items.length - 1].replace(/\r?\n$/, "");
+        }
         const tuples = [];
         const tupleSize = 4;
         for (let i = 0; i < items.length; i += tupleSize) {
@@ -78,13 +98,14 @@ export default class Parser {
         }
         // Build cues
         const cues = [];
+        console.log("tuples", tuples);
         tuples.forEach((tuple) => {
             const [id, start, end, text] = tuple;
             cues.push({
                 id,
                 startMS: this.timestampToMilliseconds(start),
                 endMS: this.timestampToMilliseconds(end),
-                text,
+                text: this.#trimSpaces ? text.replaceAll(/^\s+|\s+$/gm, "") : text,
             });
         });
         return cues;
