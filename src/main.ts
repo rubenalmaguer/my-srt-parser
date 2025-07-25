@@ -142,7 +142,7 @@ export default class Parser {
 
     // Build cues
     const cues: Cues = [];
-    console.log("tuples", tuples);
+
     tuples.forEach((tuple) => {
       const [id, start, end, text] = tuple;
       cues.push({
