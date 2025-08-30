@@ -3,23 +3,24 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "start": "tsc && node dist/main",
-    "build": "tsc",
+    "to-es-module": "npx rollup -c",
+    "build": "tsc && npm run to-es-module",
     "test": "vitest"
   },
   "exports": {
     ".": {
       "require": "./dist/main.js",
-      "import": "./dist/main.js",
-      "default": "./dist/main.js"
+      "import": "./dist/main.esm.js",
+      "default": "./dist/main.esm.js"
     }
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "rollup": "^4.49.0",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6"
   }

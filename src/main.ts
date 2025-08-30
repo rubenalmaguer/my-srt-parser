@@ -7,7 +7,7 @@ type Cue = {
 
 type Cues = Array<Cue>;
 
-export default class Parser {
+class Parser {
   #trimSpaces = true;
 
   static #patterns = {
@@ -165,5 +165,8 @@ export default class Parser {
   }
 }
 
-export const { millisecondsToTimestamp, timestampToMilliseconds } =
-  Parser.prototype;
+module.exports = Parser;
+module.exports.millisecondsToTimestamp =
+  Parser.prototype.millisecondsToTimestamp;
+module.exports.timestampToMilliseconds =
+  Parser.prototype.timestampToMilliseconds;

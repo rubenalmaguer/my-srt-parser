@@ -1,4 +1,6 @@
-export default class Parser {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Parser {
     #trimSpaces = true;
     static #patterns = {
         // Trim line breaks by not capturing them
@@ -117,4 +119,8 @@ export default class Parser {
         }, "");
     }
 }
-export const { millisecondsToTimestamp, timestampToMilliseconds } = Parser.prototype;
+module.exports = Parser;
+module.exports.millisecondsToTimestamp =
+    Parser.prototype.millisecondsToTimestamp;
+module.exports.timestampToMilliseconds =
+    Parser.prototype.timestampToMilliseconds;
