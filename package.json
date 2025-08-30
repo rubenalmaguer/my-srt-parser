@@ -2,27 +2,24 @@
   "name": "my-srt-parser",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsc && node dist/main",
+    "build": "tsc",
+    "test": "vitest"
+  },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/main.js",
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
     }
-  },
-  "files": [
-    "dist/"
-  ],
-  "scripts": {
-    "test": "vitest",
-    "build": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^24.3.0",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6"
   }

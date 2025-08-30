@@ -1,24 +1,23 @@
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _a, _Parser_trimSpaces, _Parser_patterns, _Parser_timecodeRegex;
-class Parser {
+export default class Parser {
+    #trimSpaces = true;
+    static #patterns = {
+        // Trim line breaks by not capturing them
+        lineBreaks: "(?:\\r?\\n)+",
+        lineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)+",
+        maybeLineBreaks: "(?:\\r?\\n)*",
+        maybeLineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)*",
+        id: "(\\d+)",
+        maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
+        secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
+        arrow: " *--> *",
+    };
+    #timecodeRegex;
     constructor(options) {
-        _Parser_trimSpaces.set(this, true);
-        _Parser_timecodeRegex.set(this, void 0);
-        __classPrivateFieldSet(this, _Parser_trimSpaces, options?.trimSpaces ?? true, "f");
+        this.#trimSpaces = options?.trimSpaces ?? true;
         // Build regex on initialization (Just to make each part of the pattern clearer)
-        const { lineBreaks, lineBreaksAndSpaces, maybeLineBreaks, maybeLineBreaksAndSpaces, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow, } = __classPrivateFieldGet(_a, _a, "f", _Parser_patterns);
+        const { lineBreaks, lineBreaksAndSpaces, maybeLineBreaks, maybeLineBreaksAndSpaces, id, maybeHoursAndMinutes, secondsAndMiliseconds, arrow, } = Parser.#patterns;
         const singleTimestamp = `(${maybeHoursAndMinutes}${secondsAndMiliseconds})`; // Notice parentheses
-        const fullPattern = __classPrivateFieldGet(this, _Parser_trimSpaces, "f")
+        const fullPattern = this.#trimSpaces
             ? maybeLineBreaksAndSpaces +
                 id +
                 lineBreaksAndSpaces +
@@ -34,7 +33,7 @@ class Parser {
                     arrow +
                     singleTimestamp +
                     lineBreaks;
-        __classPrivateFieldSet(this, _Parser_timecodeRegex, new RegExp(fullPattern, "m"), "f"); // Captures groups around each timestamp and id. Needs multiline flag.
+        this.#timecodeRegex = new RegExp(fullPattern, "m"); // Captures groups around each timestamp and id. Needs multiline flag.
     }
     timestampToMilliseconds(s) {
         let result = 0;
@@ -71,10 +70,10 @@ class Parser {
     srtToJSON(s) {
         // Remove BOM and whitespace.
         s = s.replace(/^\uFEFF|\uFFFE/g, "");
-        if (__classPrivateFieldGet(this, _Parser_trimSpaces, "f"))
+        if (this.#trimSpaces)
             s = s.trim();
         // Splat items strings intertwined with the three captured groups (id, start, end)
-        const items = s.split(__classPrivateFieldGet(this, _Parser_timecodeRegex, "f"));
+        const items = s.split(this.#timecodeRegex);
         // Remove first item, which should be an empty tring for valid SRTs.
         let firstComp = items.shift();
         firstComp = firstComp?.trim();
@@ -85,7 +84,7 @@ class Parser {
             throw new Error(`Invalid file format. First comp: ${firstComp}`);
         }
         // Remove any trailing line breaks in last item.
-        if (__classPrivateFieldGet(this, _Parser_trimSpaces, "f")) {
+        if (this.#trimSpaces) {
             items[items.length - 1] = items[items.length - 1].trimEnd();
         }
         else {
@@ -105,7 +104,7 @@ class Parser {
                 id,
                 startMS: this.timestampToMilliseconds(start),
                 endMS: this.timestampToMilliseconds(end),
-                text: __classPrivateFieldGet(this, _Parser_trimSpaces, "f") ? text.replaceAll(/^\s+|\s+$/gm, "") : text,
+                text: this.#trimSpaces ? text.replaceAll(/^\s+|\s+$/gm, "") : text,
             });
         });
         return cues;
@@ -118,35 +117,4 @@ class Parser {
         }, "");
     }
 }
-_a = Parser, _Parser_trimSpaces = new WeakMap(), _Parser_timecodeRegex = new WeakMap();
-_Parser_patterns = { value: {
-        // Trim line breaks by not capturing them
-        lineBreaks: "(?:\\r?\\n)+",
-        lineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)+",
-        maybeLineBreaks: "(?:\\r?\\n)*",
-        maybeLineBreaksAndSpaces: "(?:\\s*\\r?\\n\\s*)*",
-        id: "(\\d+)",
-        maybeHoursAndMinutes: "(?:\\d{1,3}:){0,2}",
-        secondsAndMiliseconds: "\\d{1,3}[,\\.]\\d{1,3}",
-        arrow: " *--> *",
-    } };
-// Create utility functions from prototype
-const { millisecondsToTimestamp, timestampToMilliseconds } = Parser.prototype;
-// Universal module export pattern
-// ES Module export (default and named exports)
-export default Parser;
-export { Parser, millisecondsToTimestamp, timestampToMilliseconds };
-// CommonJS export (for require())
-// Check if module.exports exists (CommonJS environment)
-if (typeof module !== "undefined" && module.exports) {
-    module.exports = Parser;
-    module.exports.default = Parser;
-    module.exports.Parser = Parser;
-    module.exports.millisecondsToTimestamp = millisecondsToTimestamp;
-    module.exports.timestampToMilliseconds = timestampToMilliseconds;
-}
-// UMD-style global export (for browser script tags)
-// Use globalThis for universal compatibility
-if (typeof globalThis !== "undefined") {
-    globalThis.SRTParser = Parser;
-}
+export const { millisecondsToTimestamp, timestampToMilliseconds } = Parser.prototype;
