@@ -7,7 +7,7 @@ type Cue = {
 
 type Cues = Array<Cue>;
 
-export default class Parser {
+class Parser {
   #trimSpaces = true;
 
   static #patterns = {
@@ -165,5 +165,28 @@ export default class Parser {
   }
 }
 
-export const { millisecondsToTimestamp, timestampToMilliseconds } =
-  Parser.prototype;
+// Create utility functions from prototype
+const { millisecondsToTimestamp, timestampToMilliseconds } = Parser.prototype;
+
+// Universal module export pattern
+// ES Module export (default and named exports)
+export default Parser;
+export { Parser, millisecondsToTimestamp, timestampToMilliseconds };
+export type { Cue, Cues };
+
+// CommonJS export (for require())
+// Check if module.exports exists (CommonJS environment)
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Parser;
+  module.exports.default = Parser;
+  module.exports.Parser = Parser;
+  module.exports.millisecondsToTimestamp = millisecondsToTimestamp;
+  module.exports.timestampToMilliseconds = timestampToMilliseconds;
+}
+
+// UMD-style global export (for browser script tags)
+// Use globalThis for universal compatibility
+
+if (typeof globalThis !== "undefined") {
+  (globalThis as any).SRTParser = Parser;
+}
